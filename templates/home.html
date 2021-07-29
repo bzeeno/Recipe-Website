@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <form action="" class="d-flex" method="post">{% csrf_token %}
+        <input type="search" class="form-control w-100 mr-4 mt-4" placeholder="Search..." id="query" name="query">
+        <button class="btn btn-sm btn-info mt-4" type="submit">Search</button>
+        <!-- <input type="submit" value="Save"> -->
+    </form>
+    <div class="row mt-2">
+    {% for recipe in recipes %}
+        <div class="col-lg-3 col-md-4 col-sm-12 d-flex my-3">
+            <div class="card">
+                <img src="{{ recipe.image }}" class="card-img-top" alt="">
+              <div class="card-body">
+                  <a class="text-info" href="{% url 'recipe-details' recipeid=recipe.id %}"><h5 class="card-title">{{ recipe.title }}</h5></a> 
+                  <p class="card-text">{{ recipe.summary | safe | truncatechars_html:200 }}</p>
+              </div>
+              {% if user.is_authenticated %}
+              <div class="card-footer text-center mt-auto d-flex flex-column">
+                <form action="" class="d-flex" method="post" name="add-recipe" value="{{ recipe.id }}">{% csrf_token %}
+                    <button class="w-100 btn btn-lg btn-outline-info" type="submit" name="add-recipe" value="{{ recipe.id }}">Add Recipe</button>
+                </form>
+              </div>
+              {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+    <!--
+    <form action="" class="d-flex" method="post" name="load-more">{% csrf_token %}
+        <button class="btn btn-info mt-4" type="submit" name="load-more">Load More</button>
+    </form>
+    -->
+</div>
+
+<!-- If user: Load user home page -->
+{% endblock content %}
