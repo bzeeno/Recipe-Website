@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row justify-content-center py-3">
+        <div class="col col-sm-12" align="center">
+            <h3 class="">{{ recipe_data.title }}</h3>
+        </div>
+    </div>
+    <div class="row justify-content-center pb-3">
+        <img src="{{ recipe_data.image }}" class="" alt="">
+    </div>
+
+    <div class="row py-3">
+        <p>{{ recipe_data.summary | safe }}</p>
+    </div>
+
+    <div class="row py-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">Ingredient</th>
+                    <th scope="col" class="text-center">Amount</th>
+                </tr>
+            </thead>
+            {% for ingredient in recipe_data.extendedIngredients %}
+                <tr>
+                    <td class="text-center">{{ ingredient.name }}</td>
+                    <td class="text-center">{{ ingredient.measures.us.amount }} {{ ingredient.measures.us.unitLong }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="py-3">
+        {{ recipe_data.instructions | safe }}
+    </div>
+
+
+</div>
+
+<!-- If user: Load user home page -->
+{% endblock content %}
