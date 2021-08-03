@@ -22,7 +22,8 @@ class Home(TemplateView):
     def get(self, request):
         #request.session['recipes'] = random_recipes.json()
         request.session['recipes'] = random_recipes
-        return render(request, self.template_name, request.session['recipes'])
+        context = {'recipes': request.session['recipes']}
+        return render(request, self.template_name, context)
 
     def post(self, request):
         # If post request is search
