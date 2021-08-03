@@ -11,7 +11,8 @@ import ast
 import spoonacular as sp
 
 api = sp.API(settings.API_KEY)
-random_recipes = api.get_random_recipes(number=8)
+response = api.get_random_recipes(number=8)
+random_recipes = response.json()
 #f = open('results.json',)
 #random_recipes = json.load(f)
 
@@ -22,8 +23,9 @@ class Home(TemplateView):
     def get(self, request):
         #request.session['recipes'] = random_recipes.json()
         request.session['recipes'] = random_recipes
-        context = {'recipes': request.session['recipes']}
-        return render(request, self.template_name, context)
+        print(random_recipes)
+        #print(context['recipes'])
+        return render(request, self.template_name, request.session['recipes'])
 
     def post(self, request):
         # If post request is search

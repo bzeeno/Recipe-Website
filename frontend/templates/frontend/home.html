@@ -9,8 +9,7 @@
         <!-- <input type="submit" value="Save"> -->
     </form>
     <div class="row mt-2">
-    {% for r in recipes %}
-    {% for recipe in r %}
+    {% for recipe in recipes %}
         <div class="col-lg-3 col-md-4 col-sm-12 d-flex my-3">
             <div class="card">
                 <img name="recipe-image" src="{{ recipe.image }}" class="card-img-top" alt="">
@@ -34,7 +33,6 @@
               {% endif %}
             </div>
         </div>
-    {% endfor %}
     {% endfor %}
     </div>
     <!--
