@@ -21,10 +21,8 @@ class Home(TemplateView):
     template_name = 'home.html'
 
     def get(self, request):
-        #request.session['recipes'] = random_recipes.json()
         request.session['recipes'] = random_recipes
         print(random_recipes)
-        #print(context['recipes'])
         return render(request, self.template_name, request.session['recipes'])
 
     def post(self, request):
@@ -96,15 +94,18 @@ class RecipeDetailsView(TemplateView):
         recipe_id = self.kwargs['recipeid']
         response = api.get_recipe_information(recipe_id)
         recipe_data = response.json()
-        request.session['recipe_data'] = recipe_data
+        #request.session['recipe_data'] = recipe_data
         # Boolean to tell if recipe is in profile
-        if Recipe.objects.filter(recipe_id=recipe_id,profile=self.request.user.profile):
-            is_user_recipe = True
+        if not request.user.is_anonymous:
+            if Recipe.objects.filter(recipe_id=recipe_id, profile=self.request.user.profile):
+                is_user_recipe = True
+            else:
+                is_user_recipe = False
         else:
             is_user_recipe = False
 
         context = {
-                'recipe_data': request.session['recipe_data'],
+                'recipe_data': recipe_data, #request.session['recipe_data'],
                 'is_user_recipe': is_user_recipe
         }
         return render(request, self.template_name, context)
