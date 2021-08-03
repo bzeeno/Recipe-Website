@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -138,3 +139,5 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'recipe-home'
 
 API_KEY = os.environ.get('SPOON_API_KEY')
+
+django_heroku.settings(locals())
