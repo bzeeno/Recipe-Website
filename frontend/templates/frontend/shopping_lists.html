@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+    <div class="row mt-5">
+        <h5 class="text-info px-3"><u>My Shopping Lists</u></h5>
+    </div>
+    <div class="row mt-2">
+    {% for s_list in shopping_lists %}
+        <div class="col-lg-3 col-md-4 col-sm-12 d-flex my-3">
+            <div class="card">
+              <div class="card-body">
+                  <a href="{% url 'list-details' listid=s_list.id %}"><h5 class="text-info card-title">{{ s_list.name }}</h5></a>
+                  {% for recipe in s_list.recipe_set.all %}
+                      <p class="card-text">{{ recipe }}</p>
+                  {% endfor %}
+              </div>
+                  <div class="card-footer text-center mt-auto d-flex flex-column">
+                      <form action="" class="d-flex" method="post">{% csrf_token %}
+                          <input type="hidden" name="recipe-id" value="{{ recipe_data.recipe_id }}"></input>
+                          <input type="hidden" name="recipe-name" value="{{ recipe_data.title }}"></input>
+                          <input type="hidden" name="recipe-image" value="{{ recipe_data.image }}"></input>
+                          <input type="hidden" name="recipe-summary" value="{{ recipe_data.summary }}"></input>
+                          <input type="hidden" name="recipe-instructions" value="{{ recipe_data.instructions }}"></input>
+                          <input type="hidden" name="recipe-ingredients" value="{{ recipe_data.extendedIngredients }}"></input>
+                          <input type="hidden" name="list-id" value="{{ s_list.id }}"></input>
+                          <button class="w-100 btn btn-lg btn-outline-info" type="submit" name="add-recipe-list">Add Recipe To List</button>
+                      </form>
+                  </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+{% endblock content %}

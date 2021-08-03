@@ -36,6 +36,19 @@
     <div class="py-3">
         {{ recipe_data.instructions | safe }}
     </div>
+    <form action="" class="col-sm-12 my-5 d-flex" method="post">{% csrf_token %}
+        <input type="hidden" name="recipe-id" value="{{ recipe_data.id }}"></input>
+        <input type="hidden" name="recipe-name" value="{{ recipe_data.title }}"></input>
+        <input type="hidden" name="recipe-image" value="{{ recipe_data.image }}"></input>
+        <input type="hidden" name="recipe-summary" value="{{ recipe_data.summary }}"></input>
+        <input type="hidden" name="recipe-instructions" value="{{ recipe_data.instructions }}"></input>
+        <input type="hidden" name="recipe-ingredients" value="{{ recipe_data.extendedIngredients }}"></input>
+        {% if is_user_recipe %}
+            <button class="w-100 btn btn-lg btn-danger" type="submit" name="delete-recipe">Delete Recipe</button>
+        {% else %}
+            <button class="w-100 btn btn-lg btn-outline-info" type="submit" name="add-recipe">Add Recipe</button>
+        {% endif %}
+    </form>
 
 
 </div>

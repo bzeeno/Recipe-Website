@@ -21,11 +21,6 @@ from recipe import views as recipe_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('register/', user_views.register, name='register'),
-    path('profile-settings/', user_views.profile_settings, name='profile-settings'),
-    path('dashboard/', recipe_views.DashboardListView.as_view(), name='dashboard'),
-    path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
-    path('recipe-details/<int:recipeid>', recipe_views.RecipeDetailsView.as_view(), name='recipe-details'),
-    path('', include('recipe.urls'))
+    path('', include('recipe.urls')),
+    path('', include('users.urls'))
 ]

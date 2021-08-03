@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+<div class="container">
     <h1>{{ user.username }}</h1>
 
     <form method="POST">
@@ -15,5 +16,6 @@
             <button class="btn btn-outline-info" type="submit">Update</button>
         </div>
     </form>
+</div>
 
 {% endblock content %}

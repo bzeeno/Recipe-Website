@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% for s_list in list_data %}
+<div class="container">
+    <div class="row justify-content-center py-3 " align="center">
+        <div class="col col-sm-12" align="center">
+            <h3 class="text-info">{{ s_list.name }}</h3>
+        </div>
+    </div>
+
+    <!--
+    <div class="row py-3">
+        <p>{{ list_data.summary | safe }}</p>
+    </div>
+    -->
+    <div class="row py-3 d-flex px-3">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">Ingredient</th>
+                    <th scope="col" class="text-center">Amount</th>
+                </tr>
+            </thead>
+        {% for query in ingredient_data %}
+            {% for ingredient in query %}
+            <tr>
+                <td class="text-center">{{ ingredient.name }}</td>
+                <td class="text-center">{{ ingredient.amount }} {{ ingredient.measure_unit }}</td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+        </table>
+    </div>
+
+    <div class="row px-3">
+        <h5 class="text-info mt-5 d-flex">Recipes Included:</h5>
+    </div>
+    <div class="row d-flex">
+    {% for recipe in recipe_data %}
+        <div class="col-lg-3 col-md-4 col-sm-12 d-flex my-3">
+            <div class="card">
+                <img src="{{ recipe.image }}" class="card-img-top" alt="">
+              <div class="card-body">
+                  <a href="{% url 'recipe-details' recipeid=recipe.recipe_id %}"><h5 class="text-info card-title">{{ recipe.name }}</h5></a> 
+                  <p class="card-text">{{ recipe.summary | safe | truncatechars_html:200 }}</p>
+              </div>
+              <div class="card-footer">
+                <form action="" class="" method="post">{% csrf_token %}
+                    <input type="hidden" name="list-id" value="{{ s_list.id }}"></input>
+                    <input type="hidden" name="recipe-id" value="{{ recipe.recipe_id }}"></input>
+                    <button class="w-100 btn btn-lg btn-outline-danger" type="submit" name="remove-from-list">Remove From List</button>
+                </form>
+              </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+
+    <div class="row d-flex">
+    <form action="" class="col-sm-2 my-5 d-flex" method="post">{% csrf_token %}
+        <input type="hidden" name="list-id" value="{{ s_list.id }}"></input>
+        <button class="w-100 btn btn-lg btn-danger" type="submit" name="delete-list">Delete List</button>
+    </form>
+    <form action="" class="col-sm-10 my-5 d-flex" method="post">{% csrf_token %}
+        <input type="hidden" name="list-id" value="{{ s_list.id }}"></input>
+        <button class="w-100 btn btn-lg btn-outline-info" type="submit" name="add-to-list">Add Recipe To List</button>
+    </form>
+    </div>
+
+{% endfor %}
+
+</div>
+
+<!-- If user: Load user home page -->
+{% endblock content %}

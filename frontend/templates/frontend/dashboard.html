@@ -1,42 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div class="container">
-    <div class="row">
-        <h5><u>My Recipes</u></h5>
+    <div class="row mt-5">
+        <h5 class="text-info px-3"><u>My Shopping Lists</u></h5>
+    </div>
+    <div class="row mt-2">
+    {% for s_list in shopping_lists %}
+        <div class="col-lg-3 col-md-4 col-sm-12 d-flex my-3">
+            <div class="card">
+              <div class="card-body">
+                  <a href="{% url 'list-details' listid=s_list.id %}"><h5 class="text-info card-title">{{ s_list.name }}</h5></a>
+                  {% for recipe in s_list.recipe_set.all %}
+                      <p class="card-text">{{ recipe }}</p>
+                  {% endfor %}
+                  <!--
+                  {% for query in recipes_in_list %}
+                    {% for recipe in query %}
+                        <p class="card-text">{{ recipe }}</p>
+                    {% endfor %}
+                  {% endfor %}
+                  -->
+              </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+
+    <div class="row px-3 mt-3 mb-5 justify-content-center">
+        <div class="col col-sm-6">
+            <form action="" class="w-100 d-flex" method="post">{% csrf_token %}
+                <button class="w-100 btn btn-lg btn-outline-info" align="center" type="submit" name="create-list">Create New List</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-3 px-3">
+        <h5 class="text-info"><u>My Recipes</u></h5>
     </div>
     <div class="row mt-2">
     {% for recipe in recipes %}
-        {% if forloop.counter0 <= 3 %}
         <div class="col-lg-3 col-md-4 col-sm-12 d-flex my-3">
             <div class="card">
                 <img src="{{ recipe.image }}" class="card-img-top" alt="">
               <div class="card-body">
-                  <a href="{% url 'recipe-details' recipeid=recipe.id %}"><h5 class="card-title"></h5></a> 
+                  <a href="{% url 'recipe-details' recipeid=recipe.recipe_id %}"><h5 class="text-info card-title">{{ recipe.name }}</h5></a> 
                   <p class="card-text">{{ recipe.summary | safe | truncatechars_html:200 }}</p>
               </div>
-            </div>
-        </div>
-        {% else %}
-        {% endif %}
-    {% endfor %}
-    </div>
-<!--
-    <div class="row mt-2">
-    {% for s_list in shopping_lists %}
-        {% if forloop.counter0 <= 3 %}
-        <div class="col-lg-3 col-md-4 col-sm-12 d-flex my-3">
-            <div class="card">
-              <div class="card-body">
-                  <a href="{% url 'list-details' list.id %}"><h5 class="card-title">{{ s_list.name }}</h5></a> 
-                  <p class="card-text"></p>
+              <div class="card-footer text-center mt-auto d-flex flex-column">
+                  <!-- <div id="app"></div> -->
+                  <form action="" class="d-flex" method="post">{% csrf_token %}
+                      <input type="hidden" name="recipe-id" value="{{ recipe.recipe_id }}"></input>
+                      <input type="hidden" name="recipe-name" value="{{ recipe.name }}"></input>
+                      <input type="hidden" name="recipe-image" value="{{ recipe.image }}"></input>
+                      <input type="hidden" name="recipe-summary" value="{{ recipe.summary }}"></input>
+                      <input type="hidden" name="recipe-instructions" value="{{ recipe.instructions }}"></input>
+                      <input type="hidden" name="recipe-ingredients" value="{{ recipe.extendedIngredients }}"></input>
+                      <button class="w-100 btn btn-lg btn-outline-info" type="submit" name="add-recipe">Add Recipe To List</button>
+                </form>
               </div>
             </div>
         </div>
-        {% else %}
-        {% endif %}
     {% endfor %}
     </div>
--->
+
+</div>
 <!-- If user: Load user home page -->
 {% endblock content %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container">
+    <form action="" class="" method="post">{% csrf_token %}
+        <fieldset class="form-group row mt-3">
+            <legend class="border-bottom mb-4 px-3">New Shopping List</legend>
+            <div class="col col-sm-12">
+            {{ form|crispy }}
+            </div>
+        </fieldset>
+        <div class="form-group row px-3 my-5">
+            <button class="w-100 btn btn-lg btn-outline-info" type="submit" name="create-list">Create List</button>
+        </div>
+    </form>
+</div>
+{% endblock content %}
