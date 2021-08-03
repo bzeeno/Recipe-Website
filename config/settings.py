@@ -136,4 +136,4 @@ LOGIN_URL = 'login'
 
 LOGIN_REDIRECT_URL = 'recipe-home'
 
-API_KEY = '6c31edb4ead642479ff31a76a1451a78'
+API_KEY = os.environ['SPOON_API_KEY']
