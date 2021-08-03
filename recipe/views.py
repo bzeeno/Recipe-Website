@@ -112,10 +112,11 @@ class RecipeDetailsView(TemplateView):
 
     def post(self, request, **kwargs):
         if 'add-recipe' in request.POST:
-            context = {'recipe_data': request.session['recipe_data']}
+            #context = {'recipe_data': request.session['recipe_data']}
+            recipe_id = request.POST.get('recipe-id')
             recipe_data = get_recipe_data(self, request)
             add_recipe(self, request, recipe_data)
-            return render(request, self.template_name, context)
+            return redirect('/recipe-details/'+str(recipe_id))
         elif 'delete-recipe' in request.POST:
             recipe_id = request.POST.get('recipe-id')
             delete_recipe = Recipe.objects.get(recipe_id=recipe_id) 
