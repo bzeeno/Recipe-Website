@@ -5,7 +5,7 @@
 <div class="container">
     <form action="" class="d-flex" method="post">{% csrf_token %}
         <input type="search" class="form-control w-100 mr-4 mt-4" placeholder="Search..." id="query" name="query">
-        <button class="btn btn-sm btn-info mt-4" type="submit">Search</button>
+        <button class="btn btn-sm btn-info mt-4" type="submit" name="query">Search</button>
         <!-- <input type="submit" value="Save"> -->
     </form>
     <div class="row mt-2">
