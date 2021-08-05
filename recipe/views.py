@@ -22,17 +22,17 @@ class Home(TemplateView):
 
     def get(self, request):
         request.session['recipes'] = random_recipes
-        print(random_recipes)
         return render(request, self.template_name, request.session['recipes'])
 
     def post(self, request):
         # If post request is search
         if 'query' in request.POST:
-            query = request.POST.get('query', None)
+            query = request.POST.get('query-txt')
             response = api.search_recipes_complex(query, number=8, addRecipeInformation=True, fillIngredients=True)
-            f_data = response.json()
+            recipes = response.json()
+            recipes = recipes['results']
             context = {
-                    'recipes': f_data['results']
+                    'recipes': recipes
             }
             return render(request, self.template_name, context)
         elif 'add-recipe' in request.POST:
