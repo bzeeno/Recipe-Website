@@ -28,7 +28,7 @@ class Home(TemplateView):
     def post(self, request):
         # If post request is search
         if 'query' in request.POST:
-            response = api.search_recipes_complex(query, number=8, addRecipeInformation=True, fillIngredients=True)
+            response = api.search_recipes_complex(request.POST.query, number=8, addRecipeInformation=True, fillIngredients=True)
             f_data = response.json()
             context = {
                     'recipes': f_data['results']
