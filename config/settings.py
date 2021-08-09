@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY') #'django-insecure-=bdtf9p)^_t21(20d!y*4_uibr-%=7a0)--pb3^(_d#9d3%j9w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get(DEBUG_VALUE)
+DEBUG = os.environ.get('DEBUG_VALUE')
 
 ALLOWED_HOSTS = ['myrecipewebsite.herokuapp.com']
 
