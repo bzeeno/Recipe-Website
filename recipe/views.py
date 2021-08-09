@@ -23,8 +23,8 @@ class Home(TemplateView):
     def get(self, request):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
-        request.session['recipes'] = random_recipes
-        return render(request, self.template_name, request.session['recipes'])
+        self.request.session['recipes'] = random_recipes
+        return render(request, self.template_name, self.request.session['recipes'])
 
     def post(self, request):
         # If post request is search
@@ -40,7 +40,7 @@ class Home(TemplateView):
         elif 'add-recipe' in request.POST:
             recipe_data = get_recipe_data(self,request)
             add_recipe(self, request, recipe_data)
-            return render(request, self.template_name, request.session['recipes'])
+            return render(request, self.template_name, self.request.session['recipes'])
 
     def form_valid(self, form, request):
         if 'add-recipe' in request.POST:
