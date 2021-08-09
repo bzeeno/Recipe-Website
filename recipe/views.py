@@ -10,17 +10,17 @@ import json
 import ast
 import spoonacular as sp
 
+# Initialize Spoonacular API
 api = sp.API(settings.API_KEY)
-response = api.get_random_recipes(number=8)
-random_recipes = response.json()
-#f = open('results.json',)
-#random_recipes = json.load(f)
+response = api.get_random_recipes(number=8) # get random recipes
+random_recipes = response.json()            # Put random recipes in json object
 
 ############################################# HOME VIEW #############################################
 class Home(TemplateView):
     template_name = 'home.html'
 
     def get(self, request):
+        # if there is not a session variable 'recipes' already made: create session variable
         if not request.session.get('recipes'):
             request.session['recipes'] = random_recipes
         return render(request, self.template_name, request.session['recipes'])
@@ -28,17 +28,16 @@ class Home(TemplateView):
     def post(self, request):
         # If post request is search
         if 'query' in request.POST:
-            query = request.POST.get('query-txt')
-            response = api.search_recipes_complex(query, number=8, addRecipeInformation=True, fillIngredients=True)
+            query = request.POST.get('query-txt')                                                                   # Get query text
+            response = api.search_recipes_complex(query, number=8, addRecipeInformation=True, fillIngredients=True) # Send post request to Spoonacular API
             recipes = response.json()
-            recipes = recipes['results']
-            context = {
-                    'recipes': recipes
-            }
+            recipes = recipes['results']                                                                            # Remove extra 'results' key returned by spoonacular API
+            context = { 'recipes': recipes }
             return render(request, self.template_name, context)
+        # If post request is add recipe (button on card)
         elif 'add-recipe' in request.POST:
-            recipe_data = get_recipe_data(self,request)
-            add_recipe(self, request, recipe_data)
+            recipe_data = get_recipe_data(self,request)                                                             # Get recipe data
+            add_recipe(self, request, recipe_data)                                                                  # Add recipe to database
             return render(request, self.template_name, self.request.session['recipes'])
 
     def form_valid(self, form, request):
@@ -55,14 +54,17 @@ class DashboardListView(ListView, LoginRequiredMixin):
 
     def get(self, request):
         self.template_name = 'dashboard.html'
-        recipes = Recipe.objects.filter(profile=self.request.user.profile)
-        shopping_lists = ShoppingList.objects.filter(profile=self.request.user.profile)
+        recipes = Recipe.objects.filter(profile=self.request.user.profile)                                  # Get recipes associated w/current profile
+        shopping_lists = ShoppingList.objects.filter(profile=self.request.user.profile)                     # Get shopping lists associated w/profile
         recipes_in_list = []
+
+        # Get recipes for each shopping list (to display on dashboard)
+        # Each list in recipes_in_list is associated with a shopping list
         for s_list in shopping_lists:
             new_recipe_list = []
-            new_recipes = Recipe.objects.filter(profile=self.request.user.profile, shopping_lists=s_list) 
-            new_recipe_list.append(new_recipes)
-            recipes_in_list.append(new_recipe_list)
+            new_recipes = Recipe.objects.filter(profile=self.request.user.profile, shopping_lists=s_list)   # Get recipes associated with current shopping list
+            new_recipe_list.append(new_recipes)                                                             # Add recipes to a list
+            recipes_in_list.append(new_recipe_list)                                                         # Add list to another list
         context = {'recipes': recipes,
                    'shopping_lists': shopping_lists,
                    'recipes_in_list': recipes_in_list
@@ -71,15 +73,20 @@ class DashboardListView(ListView, LoginRequiredMixin):
 
 
     def post(self, request, **kwargs):
+        # If user clicks button to add specific recipe to list
+        # Send them to shopping list view to select shopping list
         if 'add-recipe' in request.POST:
             self.template_name = 'shopping_lists.html'
             recipe_data = get_recipe_data(self, request)
-            print(recipe_data)
             render_page = ShoppingListsView.get(self, request, recipe_data=recipe_data)
             return render_page
+        # If user selected which shopping list to add recipe to
+        # Send post request to shopping list view
         elif 'add-recipe-list' in request.POST:
             render_page = ShoppingListsView.post(self, request)
             return render_page
+        # If user clicked create list button
+        # redirect to create list view
         elif 'create-list' in request.POST:
             return redirect('/create-list/')            
 #####################################################################################################
@@ -94,11 +101,10 @@ class RecipeDetailsView(TemplateView):
 
     def get(self, request, **kwargs):
         recipe_id = self.kwargs['recipeid']
-        response = api.get_recipe_information(recipe_id)
+        response = api.get_recipe_information(recipe_id)                                                # request recipe info from Spoonacular API
         recipe_data = response.json()
-        #request.session['recipe_data'] = recipe_data
         # Boolean to tell if recipe is in profile
-        if not request.user.is_anonymous:
+        if not request.user.is_anonymous:                                                               # if user is not anonymous (i.e. is logged in)
             if Recipe.objects.filter(recipe_id=recipe_id, profile=self.request.user.profile):
                 is_user_recipe = True
             else:
@@ -114,15 +120,16 @@ class RecipeDetailsView(TemplateView):
 
     def post(self, request, **kwargs):
         if 'add-recipe' in request.POST:
-            #context = {'recipe_data': request.session['recipe_data']}
             recipe_id = request.POST.get('recipe-id')
             recipe_data = get_recipe_data(self, request)
             add_recipe(self, request, recipe_data)
             return redirect('/recipe-details/'+str(recipe_id))
+        # If user clicked delete recipe
         elif 'delete-recipe' in request.POST:
             recipe_id = request.POST.get('recipe-id')
-            delete_recipe = Recipe.objects.get(recipe_id=recipe_id) 
+            delete_recipe = Recipe.objects.get(recipe_id=recipe_id)                                     # Get recipe to delete
             current_profile = self.request.user.profile
+            # Delete relationship between current profile and recipe. Also, remove recipe from shopping lists 
             delete_recipe.profile.remove(current_profile)
             delete_recipe.shopping_lists.clear()
             return redirect('/dashboard/')
@@ -175,26 +182,25 @@ class ShoppingListsView(TemplateView, LoginRequiredMixin):
 
     def get(self, request, **kwargs):
         recipe_data = kwargs['recipe_data']
-        print(recipe_data)
-        shopping_lists = ShoppingList.objects.filter(profile=self.request.user.profile)
-        recipes_in_list = []
+        shopping_lists = ShoppingList.objects.filter(profile=self.request.user.profile)                     # get shopping lists for current profile
+        recipes_in_list = []                                                                                # will hold lists of recipes. Each list is associated with a shopping list.
+        # get recipes associated with user's shopping lists
         for s_list in shopping_lists:
             new_recipe_list = []
-            new_recipes = Recipe.objects.filter(profile=self.request.user.profile, shopping_lists=s_list) 
-            new_recipe_list.append(new_recipes)
-            recipes_in_list.append(new_recipe_list)
+            new_recipes = Recipe.objects.filter(profile=self.request.user.profile, shopping_lists=s_list)   # Get recipes associated w/current shopping list
+            new_recipe_list.append(new_recipes)                                                             # Add recipes to list
+            recipes_in_list.append(new_recipe_list)                                                         # Add list to other list
         context = {'shopping_lists': shopping_lists,
                    'recipes_in_list': recipes_in_list,
                    'recipe_data': recipe_data
         }
-        #print(Recipe.objects.filter(profile=self.request.user.profile, shopping_lists=ShoppingList.objects.get(profile=self.request.user.profile)))
         return render(request, self.template_name, context)
+
     def post(self, request):
         if 'add-recipe-list' in request.POST:
             recipe_data = get_recipe_data(self, request)
-            print(recipe_data)
             list_id = request.POST.get('list-id')
-            add_recipe_to_list(self, request, recipe_data, list_id)
+            add_recipe_to_list(self, request, recipe_data, list_id)                                        
             render_page = DashboardListView.get(self, request)
             return render_page
 ######################################################################################################
@@ -208,9 +214,9 @@ class ShoppingListDetailsView(DetailView, LoginRequiredMixin):
 
     def get(self, request, **kwargs):
         list_id = self.kwargs['listid']
-        list_data = ShoppingList.objects.filter(id=list_id, profile=self.request.user.profile)
-        recipe_data = Recipe.objects.filter(profile=self.request.user.profile, shopping_lists__id=list_id)
-        ingredient_data = get_ingredients_in_recipe(self, request, recipe_data, list_id)
+        list_data = ShoppingList.objects.filter(id=list_id, profile=self.request.user.profile)              # get specific list
+        recipe_data = Recipe.objects.filter(profile=self.request.user.profile, shopping_lists__id=list_id)  # get recipes associated w/list
+        ingredient_data = get_ingredients_in_recipe(self, request, recipe_data, list_id)                    # get ingredients associated w/recipes
          
         context = {'list_data': list_data,
                    'recipe_data': recipe_data,
@@ -223,7 +229,6 @@ class ShoppingListDetailsView(DetailView, LoginRequiredMixin):
         if 'add-to-list' in request.POST:
             list_id = request.POST.get('list-id')
             recipe_data = Recipe.objects.filter(profile=self.request.user.profile)
-
             context = {'recipe_data': recipe_data, 'list_id': list_id}
             return render(request, 'recipe_list.html', context)
         # If user clicked a recipe to add to list
@@ -233,13 +238,17 @@ class ShoppingListDetailsView(DetailView, LoginRequiredMixin):
             add_recipe_to_list(self, request, recipe_data, list_id)
             render_page = self.get(request, listid=list_id)
             return render_page
+        # If user clicked button to remove recipe from list
         elif 'remove-from-list' in request.POST:
             recipe_id = request.POST.get('recipe-id')
             list_id = request.POST.get('list-id')
+            # get recipe and shopping list
             recipe_delete = Recipe.objects.get(recipe_id=recipe_id)
             shopping_list = ShoppingList.objects.get(id=list_id)
+            # remove shopping list from recipe
             recipe_delete.shopping_lists.remove(shopping_list)
             return redirect('/list-details/'+str(list_id))
+        # If user clicked to delete list
         elif 'delete-list' in request.POST:
             list_id = request.POST.get('list-id')
             ShoppingList.objects.get(id=list_id).delete()
@@ -251,6 +260,9 @@ class ShoppingListDetailsView(DetailView, LoginRequiredMixin):
 
 ############################################# FUNCTIONS #############################################
 def get_recipe_data(self,request):
+    '''
+    Get recipe data from post request
+    '''
     recipe_id = request.POST.get('recipe-id')
     recipe_name = request.POST.get('recipe-name')
     recipe_image = request.POST.get('recipe-image')
@@ -269,6 +281,9 @@ def get_recipe_data(self,request):
     return recipe_dict
 
 def add_recipe(self, request, recipe_data):
+    '''
+    Add recipe to profile
+    '''
     recipe_id = recipe_data.get('recipe_id')
     recipe_name = recipe_data.get('recipe_name')
     recipe_image = recipe_data.get('recipe_image')
@@ -278,7 +293,6 @@ def add_recipe(self, request, recipe_data):
 
     # Convert recipe ingredients to a dict
     recipe_ingredients = ast.literal_eval(recipe_ingredients)
-    #print(recipe_ingredients[0]['id'])
 
     # If this recipe is not already added to profile AND the recipe is not in the database
     if (not Recipe.objects.filter(profile=self.request.user.profile, recipe_id=recipe_id)) and (not Recipe.objects.filter(recipe_id=recipe_id)):
@@ -295,10 +309,14 @@ def add_recipe(self, request, recipe_data):
         update_recipe = Recipe.objects.get(recipe_id=recipe_id)
         update_recipe.profile.add(self.request.user.profile)
         messages.success(request, f'Recipe Added!')
+    # Otherwise, the recipe has already been added to the account
     else:
         messages.warning(request, f'Recipe Has Already Been Added!')
 
 def add_recipe_to_list(self, request, recipe_data, list_id):
+    '''
+    Add recipe to shopping list
+    '''
     recipe_id = recipe_data.get('recipe_id')
     recipe_name = recipe_data.get('recipe_name')
     recipe_image = recipe_data.get('recipe_image')
@@ -315,7 +333,7 @@ def add_recipe_to_list(self, request, recipe_data, list_id):
     else:
         messages.warning(request, f'Recipe Has Already Been Added!')
 
-def get_ingredients_in_recipe(self, request, recipe_data, list_id):
+def get_ingredients_in_recipe(self, request, recipe_data, list_id): 
     ingredient_data = []
     for recipe in recipe_data:
         new_ingredient = Ingredient.objects.filter(recipe=recipe)
