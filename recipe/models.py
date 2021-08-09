@@ -28,9 +28,9 @@ class Recipe(models.Model):
 
 class Ingredient(models.Model):
     ingredient_id = models.IntegerField(null=True)
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=150)
     amount = models.DecimalField(max_digits=6, decimal_places=2)
-    measure_unit = models.CharField(max_length=15)
+    measure_unit = models.CharField(max_length=50)
     # An ingredient can only be in one recipe, but a recipe can have many ingredients
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
