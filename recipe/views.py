@@ -21,9 +21,8 @@ class Home(TemplateView):
     template_name = 'home.html'
 
     def get(self, request):
-        if not request.session.exists(request.session.session_key):
-            request.session.create()
-        request.session['recipes'] = random_recipes
+        if not request.session.get('recipes'):
+            request.session['recipes'] = random_recipes
         return render(request, self.template_name, request.session['recipes'])
 
     def post(self, request):
